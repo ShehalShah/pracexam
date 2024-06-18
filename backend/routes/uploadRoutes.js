@@ -6,7 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/students', authMiddleware, upload.single('file'), uploadStudents);
-router.post('/questions', authMiddleware, upload.single('file'), uploadQuestions);
+router.post('/students', authMiddleware(['teacher']), upload.single('file'), uploadStudents);
+router.post('/questions', authMiddleware(['teacher']), upload.single('file'), uploadQuestions);
 
 module.exports = router;

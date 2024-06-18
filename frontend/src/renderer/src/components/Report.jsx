@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Report = () => {
+const Report = ({ examId }) => {
   const [reports, setReports] = useState([]);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/api/reports', {
+        const res = await axios.get(`http://localhost:5001/api/reports/exam/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setReports(res.data);
@@ -17,7 +17,7 @@ const Report = () => {
     };
 
     fetchReports();
-  }, []);
+  }, [examId]);
 
   return (
     <div>
@@ -34,12 +34,12 @@ const Report = () => {
         </thead>
         <tbody>
           {reports.map((report) => (
-            <tr key={report.studentId}>
-              <td>{report.studentId}</td>
-              <td>{report.courseId}</td>
-              <td>{report.courseName}</td>
+            <tr key={report.studentId._id}>
+              <td>{report.studentId.userId}</td>
+              <td>{report.studentId.courseId}</td>
+              <td>{report.studentId.courseName}</td>
               <td>{report.questionChanges}</td>
-              <td>{report.attendance ? 'Present' : 'Absent'}</td>
+              <td>{report.completed ? 'Present' : 'Absent'}</td>
             </tr>
           ))}
         </tbody>

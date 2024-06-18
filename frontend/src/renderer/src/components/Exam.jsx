@@ -11,10 +11,10 @@ const Exam = () => {
   useEffect(() => {
     const fetchQuestion = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/exams/${examId}/question`, {
+        const res = await axios.get(`http://localhost:5001/api/exams/start/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setQuestion(res.data.questionText);
+        setQuestion(res.data.question.questionText);
       } catch (err) {
         console.error('Failed to fetch question:', err);
       }
@@ -31,35 +31,35 @@ const Exam = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`http://localhost:5001/api/exams/${examId}/submit`, {}, {
+      await axios.post(`http://localhost:5001/api/exams/submit/${examId}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      alert('Exam submitted successfully');
-    } catch (err) {
-      console.error('Failed to submit exam:', err);
-    }
-  };
+    });
+    alert('Exam submitted successfully');
+  } catch (err) {
+    console.error('Failed to submit exam:', err);
+  }
+};
 
-  const handleChangeQuestion = async () => {
-    try {
-      const res = await axios.post(`http://localhost:5001/api/exams/${examId}/change-question`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      setQuestion(res.data.questionText);
-    } catch (err) {
-      console.error('Failed to change question:', err);
-    }
-  };
+const handleChangeQuestion = async () => {
+  try {
+    const res = await axios.post(`http://localhost:5001/api/exams/change-question/${examId}`, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    });
+    setQuestion(res.data.question.questionText);
+  } catch (err) {
+    console.error('Failed to change question:', err);
+  }
+};
 
-  return (
-    <div>
-      <h2>Exam</h2>
-      <div>Time Remaining: {Math.floor(timer / 60)}:{timer % 60}</div>
-      <div>Question: {question}</div>
-      <button onClick={handleSubmit}>Submit</button>
-      <button onClick={handleChangeQuestion}>Change Question</button>
-    </div>
-  );
+return (
+  <div>
+    <h2>Exam</h2>
+    <div>Time Remaining: {Math.floor(timer / 60)}:{timer % 60}</div>
+    <div>Question: {question}</div>
+    <button onClick={handleSubmit}>Submit</button>
+    <button onClick={handleChangeQuestion}>Change Question</button>
+  </div>
+);
 };
 
 export default Exam;

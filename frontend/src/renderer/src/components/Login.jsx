@@ -9,18 +9,15 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    console.log("clicked", { username, password });
     e.preventDefault();
     try {
-    //   const res = await axios.post('http://localhost:5001/api/auth/login', { username, password });
-    const res = await axios.post('http://localhost:5001/api/auth/login', { username, password }, {
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+      const res = await axios.post('http://localhost:5001/api/auth/login', { username, password }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       localStorage.setItem('token', res.data.token);
-      console.log("logged in");
       if (role === 'teacher') {
         navigate('/teacher-dashboard');
       } else {

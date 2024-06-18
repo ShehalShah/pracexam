@@ -4,9 +4,18 @@ const questionController = require('../controllers/questionController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Add a question
-router.post('/', authMiddleware, questionController.addQuestion);
+router.post('/', authMiddleware(['teacher']), questionController.addQuestion);
 
 // Get all questions
-router.get('/', authMiddleware, questionController.getQuestions);
+router.get('/', authMiddleware(), questionController.getQuestions);
+
+// Get questions by course ID
+router.get('/course/:courseId', authMiddleware(), questionController.getQuestionsByCourse);
+
+// Update a question
+router.put('/:id', authMiddleware(['teacher']), questionController.updateQuestion);
+
+// Delete a question
+router.delete('/:id', authMiddleware(['teacher']), questionController.deleteQuestion);
 
 module.exports = router;

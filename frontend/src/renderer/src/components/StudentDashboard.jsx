@@ -9,7 +9,7 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/api/exams', {
+        const res = await axios.get('http://localhost:5001/api/exams/student', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setExams(res.data);

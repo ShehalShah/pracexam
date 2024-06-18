@@ -27,6 +27,6 @@ router.post(
 );
 
 // Get user data
-router.get('/', authMiddleware, authController.getUser);
+router.get('/', authMiddleware(), authController.getUser);
 
 module.exports = router;
