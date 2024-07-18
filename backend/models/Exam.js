@@ -8,9 +8,11 @@ const ExamSchema = new mongoose.Schema({
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
   studentStatus: [{
     studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    questionChanges: { type: Number, default: 0 },
+    questionChanges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
     completed: { type: Boolean, default: false },
   }],
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Exam', ExamSchema);

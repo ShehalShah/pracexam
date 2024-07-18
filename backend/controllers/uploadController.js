@@ -30,8 +30,10 @@ exports.uploadStudents = (req, res) => {
             batchName: row.batchName,
           };
         }));
-        await User.insertMany(users);
-        res.json({ msg: 'Students uploaded successfully' });
+        // await User.insertMany(users);
+        // res.json({ msg: 'Students uploaded successfully' });
+        const usersWithoutPassword = users.map(({ password, ...rest }) => rest);
+        res.json({ msg: 'Students uploaded successfully', users: usersWithoutPassword });
       } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -52,8 +54,10 @@ exports.uploadQuestions = (req, res) => {
           courseName: row.courseName,
           courseId: row.courseId,
         }));
-        await Question.insertMany(questions);
-        res.json({ msg: 'Questions uploaded successfully' });
+        // await Question.insertMany(questions);
+        // res.json({ msg: 'Questions uploaded successfully' });
+        res.json({ msg: 'Questions uploaded successfully', questions });
+
       } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');

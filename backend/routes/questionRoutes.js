@@ -6,8 +6,11 @@ const authMiddleware = require('../middleware/authMiddleware');
 // Add a question
 router.post('/', authMiddleware(['teacher']), questionController.addQuestion);
 
+// send q ids get qs
+router.post('/by-ids', questionController.fetchByids);
+
 // Get all questions
-router.get('/', authMiddleware(), questionController.getQuestions);
+router.get('/', questionController.getQuestions);
 
 // Get questions by course ID
 router.get('/course/:courseId', authMiddleware(), questionController.getQuestionsByCourse);

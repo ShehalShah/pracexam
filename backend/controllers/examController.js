@@ -4,6 +4,7 @@ const User = require('../models/User');
 
 exports.scheduleExam = async (req, res) => {
   const { courseId, courseName, batchName, examDate } = req.body;
+  const userId = req.user.id;
 
   try {
     const questions = await Question.find({ courseId });
@@ -13,7 +14,9 @@ exports.scheduleExam = async (req, res) => {
       batchName,
       examDate,
       questions,
-      studentStatus: []
+      studentStatus: [],
+      createdBy: userId,
+      createdAt: new Date()
     });
 
     await exam.save();
@@ -35,22 +38,42 @@ exports.getExamsForStudent = async (req, res) => {
   }
 };
 
+exports.getExamsForTeacher = async (req, res) => {
+  try {
+    const exams = await Exam.find({ createdBy: req.user.id }).sort({ createdAt: -1 });
+    res.json(exams);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
 exports.startExam = async (req, res) => {
   try {
     const exam = await Exam.findById(req.params.examId).populate('questions');
-    const question = exam.questions[Math.floor(Math.random() * exam.questions.length)];
+    let question = exam.questions[Math.floor(Math.random() * exam.questions.length)];
 
-    // Check if student status exists, if not add it
+    let modifiedQuestion = { ...question._doc };
+
+    if (modifiedQuestion.image) {
+      const base64Image = modifiedQuestion.image.toString('base64');
+      modifiedQuestion.image = base64Image;
+    }
+
     let studentStatus = exam.studentStatus.find(status => status.studentId.toString() === req.user.id);
     if (!studentStatus) {
       studentStatus = {
         studentId: req.user.id,
-        questionChanges: 0,
+        questionChanges: [question._id],
         completed: false
       };
       exam.studentStatus.push(studentStatus);
       await exam.save();
+    } else if (studentStatus.questionChanges.length === 0) {
+      studentStatus.questionChanges.push(question._id);
+      await exam.save();
     }
+    question=modifiedQuestion
 
     res.json({ question, exam });
   } catch (err) {
@@ -62,19 +85,34 @@ exports.startExam = async (req, res) => {
 exports.changeQuestion = async (req, res) => {
   try {
     const exam = await Exam.findById(req.params.examId).populate('questions');
-    const question = exam.questions[Math.floor(Math.random() * exam.questions.length)];
-
     let studentStatus = exam.studentStatus.find(status => status.studentId.toString() === req.user.id);
+
     if (!studentStatus) {
       studentStatus = {
         studentId: req.user.id,
-        questionChanges: 0,
+        questionChanges: [],
         completed: false
       };
       exam.studentStatus.push(studentStatus);
     }
-    studentStatus.questionChanges += 1;
+
+    let availableQuestions = exam.questions.filter(question => !studentStatus.questionChanges.includes(question._id));
+    if (availableQuestions.length === 0) {
+      return res.status(400).json({ msg: 'No more new questions available.' });
+    }
+
+    let question = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+    let modifiedQuestion = { ...question._doc };
+
+    if (modifiedQuestion.image) {
+      const base64Image = modifiedQuestion.image.toString('base64');
+
+      modifiedQuestion.image = base64Image;
+    }
+
+    studentStatus.questionChanges.push(question._id);
     await exam.save();
+    question=modifiedQuestion
 
     res.json({ question });
   } catch (err) {

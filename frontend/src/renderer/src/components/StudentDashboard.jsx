@@ -43,6 +43,23 @@ const StudentDashboard = () => {
     localStorage.removeItem('token');
     navigate('/');
   };
+  const isExpired = (examDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+  
+    const exam = new Date(examDate);
+    exam.setHours(0, 0, 0, 0);
+  
+    return exam < today;
+  };
+  
+  const isCompleted = (exam) => {
+    const studentStatus = exam.studentStatus.find(status => status.studentId === user?._id);
+    return studentStatus ? studentStatus.completed : false;
+  };
+
+  const scheduledExams = exams.filter(exam => !isCompleted(exam));
+  const completedExams = exams.filter(exam => isCompleted(exam));
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -54,11 +71,11 @@ const StudentDashboard = () => {
               <FaUserCircle className="text-3xl text-gray-700" />
               <div className="text-gray-700">
                 <div className='flex flex-col'>
-                <p className="font-bold">{user.username}</p>
-                <div className='flex'>
-                <p className="text-sm">{user.className} : </p>
-                <p className="text-sm"> {user.batchName}</p>
-                </div>
+                  <p className="font-bold">{user.username}</p>
+                  <div className='flex'>
+                    <p className="text-sm">{user.className}:</p>
+                    <p className="text-sm"> {user.batchName}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -71,22 +88,41 @@ const StudentDashboard = () => {
       </nav>
       <div className="flex flex-col items-center p-4">
         <h2 className="text-3xl font-bold text-gray-700 mb-8">Available Exams</h2>
-        <ul className="w-full max-w-3xl">
-          {exams.map((exam) => (
-            <li key={exam._id} className="bg-white shadow-md rounded-lg mb-4 p-6 flex justify-between items-center">
-              <div className="flex items-center">
-                <FaBook className="text-blue-500 text-2xl mr-4" />
-                <span className="text-lg font-medium text-gray-700">{exam.courseName}</span>
-              </div>
-              <button
-                onClick={() => handleEnterExam(exam._id)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
-              >
-                Enter Exam
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="w-full max-w-3xl">
+          <h3 className="text-2xl font-semibold text-gray-600 mb-4">Scheduled Exams</h3>
+          <ul className="mb-8">
+            {scheduledExams.map((exam) => (
+              <li key={exam._id} className="bg-white shadow-md rounded-lg mb-4 p-6 flex justify-between items-center">
+                <div className="flex items-center">
+                  <FaBook className="text-blue-500 text-2xl mr-4" />
+                  <span className="text-lg font-medium text-gray-700">{exam.courseName}</span>
+                </div>
+                {isExpired(exam.examDate) ? (
+                  <span className="text-red-500">Expired</span>
+                ) : (
+                  <button
+                    onClick={() => handleEnterExam(exam._id)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                  >
+                    Enter Exam
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <h3 className="text-2xl font-semibold text-gray-600 mb-4">Completed Exams</h3>
+          <ul>
+            {completedExams.map((exam) => (
+              <li key={exam._id} className="bg-white shadow-md rounded-lg mb-4 p-6 flex justify-between items-center">
+                <div className="flex items-center">
+                  <FaBook className="text-green-500 text-2xl mr-4" />
+                  <span className="text-lg font-medium text-gray-700">{exam.courseName}</span>
+                </div>
+                <span className="text-green-500">Completed</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

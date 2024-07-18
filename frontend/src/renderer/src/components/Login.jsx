@@ -29,9 +29,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-gray-700">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-300 to-purple-200 ">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 style={{ fontFamily: 'Arial, sans-serif', fontWeight: '600' }} className="text-3xl font-bold mb-6 text-gray-800 text-center font-serif">{role.charAt(0).toUpperCase() + role.slice(1)} Login</h2>
+        <div className="flex justify-center mb-4">
+          <button
+            className={`px-4 py-2 rounded-l-lg ${role === 'student' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+            onClick={() => setRole('student')}
+          >
+            Student
+          </button>
+          <button
+            className={`px-4 py-2 rounded-r-lg ${role === 'teacher' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+            onClick={() => setRole('teacher')}
+          >
+            Teacher
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-2">Username:</label>
@@ -52,17 +66,6 @@ const Login = () => {
               required
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
             />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Role:</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
-            >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-            </select>
           </div>
           <button
             type="submit"
