@@ -22,16 +22,24 @@ exports.addQuestion = (req, res) => {
         courseId,
       };
 
+      let base64Image = ""
+
       if (req.file) {
+        console.log(req.file);
         // Convert image buffer to Base64 string
-        const base64Image = req.file.buffer.toString('base64');
+        base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
         questionData.image = base64Image;
-        console.log(req.file.mimetype);
+        // console.log(base64Image);
+        // const base64Image = req.file.buffer.toString('base64');
+        questionData.image = base64Image;
+        // console.log(req.file.mimetype);
+        // console.log(base64Image);
       }
 
       const question = new Question(questionData);
       await question.save();
       res.json(question);
+      // res.status(200).send(base64Image);
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');

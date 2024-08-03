@@ -73,6 +73,7 @@ const Exam = () => {
       console.error('Failed to change question:', err.message);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
       <h2 className="text-3xl font-bold text-gray-700 mb-8">Exam</h2>
@@ -81,7 +82,7 @@ const Exam = () => {
         Time Remaining: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
       </div>
       <div className="bg-white shadow-md rounded-lg p-6 mb-8 w-full max-w-3xl text-center">
-        {image && <img src={`data:image/jpeg;base64,${image}`} alt="Question" className="mx-auto mb-4" />}
+        {image && <img src={`${image}`} alt="Question" className="mx-auto mb-4" />}
         <div className="flex items-center mb-4 text-lg text-gray-700">
           <FaQuestionCircle className="mr-2 text-2xl text-blue-500" />
           Question: {question}
