@@ -13,7 +13,7 @@ router.post('/by-ids', questionController.fetchByids);
 router.get('/', questionController.getQuestions);
 
 // Get questions by course ID
-router.get('/course/:courseId', authMiddleware(), questionController.getQuestionsByCourse);
+router.get('/course/:courseId', questionController.getQuestionsByCourse);
 
 // Update a question
 router.put('/:id', authMiddleware(['teacher']), questionController.updateQuestion);
