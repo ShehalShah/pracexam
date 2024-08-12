@@ -100,3 +100,18 @@ exports.getUser = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
+
+exports.getStudentsByBatch = async (req, res) => {
+  const { batchName } = req.body;
+
+  try {
+    const students = await User.find({ batchName, role: 'student' }).select('-password');
+    if (!students.length) {
+      return res.status(404).json({ msg: 'No students found for this batch' });
+    }
+    res.json(students);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};

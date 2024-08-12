@@ -58,7 +58,6 @@ exports.fetchByids = async (req, res) => {
   }
 };
 
-// Get all questions
 exports.getQuestions = async (req, res) => {
   try {
     const questions = await Question.find();
@@ -90,8 +89,6 @@ exports.getQuestions = async (req, res) => {
   }
 };
 
-
-// Get questions by courseId
 exports.getQuestionsByCourse = async (req, res) => {
   const { courseId } = req.params;
 
@@ -104,32 +101,30 @@ exports.getQuestionsByCourse = async (req, res) => {
   }
 };
 
-// Update a question
-exports.updateQuestion = async (req, res) => {
-  const { questionNumber, questionText, courseName, courseId } = req.body;
-  const { id } = req.params;
+// exports.updateQuestion = async (req, res) => {
+//   const { questionNumber, questionText, courseName, courseId } = req.body;
+//   const { id } = req.params;
 
-  try {
-    let question = await Question.findById(id);
+//   try {
+//     let question = await Question.findById(id);
 
-    if (!question) {
-      return res.status(404).json({ msg: 'Question not found' });
-    }
+//     if (!question) {
+//       return res.status(404).json({ msg: 'Question not found' });
+//     }
 
-    question = await Question.findByIdAndUpdate(
-      id,
-      { $set: { questionNumber, questionText, courseName, courseId } },
-      { new: true }
-    );
+//     question = await Question.findByIdAndUpdate(
+//       id,
+//       { $set: { questionNumber, questionText, courseName, courseId } },
+//       { new: true }
+//     );
 
-    res.json(question);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-};
+//     res.json(question);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// };
 
-// Delete a question
 exports.deleteQuestion = async (req, res) => {
   const { id } = req.params;
 
@@ -147,4 +142,41 @@ exports.deleteQuestion = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
+};
+
+exports.updateQuestion = (req, res) => {
+  // const { id } = req.params;
+
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(500).send('Error uploading file.');
+    }
+    const { id,questionNumber, questionText, courseName, courseId } = req.body;
+    console.log(req.body);
+
+    try {
+      let updateData = {
+        questionNumber,
+        questionText,
+        courseName,
+        courseId,
+      };
+      // console.log(updateData);
+
+      if (req.file) {
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        updateData.image = base64Image;
+      }
+
+      const question = await Question.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+      if (!question) {
+        return res.status(404).json({ msg: 'Question not found' });
+      }
+
+      res.json(question);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server error');
+    }
+  });
 };

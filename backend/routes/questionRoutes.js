@@ -9,6 +9,8 @@ router.post('/', authMiddleware(['teacher']), questionController.addQuestion);
 // send q ids get qs
 router.post('/by-ids', questionController.fetchByids);
 
+router.post('/update', questionController.updateQuestion);
+
 // Get all questions
 router.get('/', questionController.getQuestions);
 
@@ -16,7 +18,7 @@ router.get('/', questionController.getQuestions);
 router.get('/course/:courseId', questionController.getQuestionsByCourse);
 
 // Update a question
-router.put('/:id', authMiddleware(['teacher']), questionController.updateQuestion);
+// router.put('/:id', authMiddleware(['teacher']), questionController.updateQuestion);
 
 // Delete a question
 router.delete('/:id', authMiddleware(['teacher']), questionController.deleteQuestion);

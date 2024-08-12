@@ -29,4 +29,7 @@ router.post(
 // Get user data
 router.get('/', authMiddleware(), authController.getUser);
 
+router.post('/students/batch', authController.getStudentsByBatch);
+
+
 module.exports = router;
