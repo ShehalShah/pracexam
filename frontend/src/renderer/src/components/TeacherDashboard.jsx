@@ -151,6 +151,7 @@ const TeacherDashboard = () => {
       setSelectedQuestions([...selectedQuestions, question]);
     }
   };
+  console.log(selectedQuestions);
 
   const renderSection = () => {
     switch (currentSection) {
@@ -355,9 +356,9 @@ const TeacherDashboard = () => {
                     )}
                   </div>
                   {isFetchingQuestions && <FaSpinner className="animate-spin text-blue-500 mt-2" />}
-                  {!isFetchingQuestions && questions.length > 0 && (
+                  {!isFetchingQuestions && questions?.length > 0 && (
                     <div className="mt-2 text-green-500 flex items-center">
-                      <FaCheck className="mr-1" /> {selectedQuestions.length} questions selected.
+                      <FaCheck className="mr-1" /> {selectedQuestions?.length} questions selected.
                       <button
                         onClick={() => setIsQuestionsView(true)}
                         className="ml-4 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition duration-300"
@@ -572,8 +573,10 @@ const TeacherDashboard = () => {
 
         </nav>
       </aside>
-      <main className="flex flex-col flex-1 p-8">
-        <h2 className="text-3xl font-bold text-gray-700 mb-8">Teacher Dashboard</h2>
+      <main className="flex flex-col flex-1 p-4">
+        <div className='bg-white shadow-md rounded-lg p-6 mb-3 w-full max-w-6xl'>
+        <h2 className="text-3xl mx-2 font-bold text-gray-700">Dashboard</h2>
+        </div>
         {renderSection()}
       </main>
     </div>
