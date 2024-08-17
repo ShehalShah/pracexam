@@ -30,7 +30,7 @@ exports.uploadStudents = (req, res) => {
             batchName: row.batchName,
           };
         }));
-        // await User.insertMany(users);
+        await User.insertMany(users);
         // res.json({ msg: 'Students uploaded successfully' });
         const usersWithoutPassword = users.map(({ password, ...rest }) => rest);
         res.json({ msg: 'Students uploaded successfully', users: usersWithoutPassword });
@@ -54,7 +54,7 @@ exports.uploadQuestions = (req, res) => {
           courseName: row.courseName,
           courseId: row.courseId,
         }));
-        // await Question.insertMany(questions);
+        await Question.insertMany(questions);
         // res.json({ msg: 'Questions uploaded successfully' });
         res.json({ msg: 'Questions uploaded successfully', questions });
 

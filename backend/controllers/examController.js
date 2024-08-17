@@ -3,11 +3,11 @@ const Question = require('../models/Question');
 const User = require('../models/User');
 
 exports.scheduleExam = async (req, res) => {
-  const { courseId, courseName, batchName, examDate } = req.body;
+  const { courseId, courseName, batchName, examDate, selectedQuestions } = req.body;
   const userId = req.user.id;
 
   try {
-    const questions = await Question.find({ courseId });
+    const questions = await Question.find({ _id: { $in: selectedQuestions } });
     const exam = new Exam({
       courseId,
       courseName,
@@ -16,7 +16,7 @@ exports.scheduleExam = async (req, res) => {
       questions,
       studentStatus: [],
       createdBy: userId,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     await exam.save();

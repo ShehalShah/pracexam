@@ -29,7 +29,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-300 to-purple-200 ">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-200 to-gray-200 ">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 style={{ fontFamily: 'Arial, sans-serif', fontWeight: '600' }} className="text-3xl font-bold mb-6 text-gray-800 text-center font-serif">{role.charAt(0).toUpperCase() + role.slice(1)} Login</h2>
         <div className="flex justify-center mb-4">

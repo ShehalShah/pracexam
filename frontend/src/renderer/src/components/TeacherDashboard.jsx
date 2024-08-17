@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaFileUpload, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaChevronDown, FaUsers, FaQuestionCircle, FaChartBar, FaTimes, FaCheckCircle, FaSearch, FaUserCircle, FaSignOutAlt,FaSpinner,FaCheck } from 'react-icons/fa';
+import { FaFileUpload, FaCalendarAlt, FaClipboardList, FaArrowLeft, FaChevronDown, FaUsers, FaQuestionCircle, FaChartBar, FaTimes, FaCheckCircle, FaSearch, FaUserCircle, FaSignOutAlt, FaSpinner, FaCheck } from 'react-icons/fa';
 import BrowseSection from './BrowseSection';
+import Report from './Report';
 
 const TeacherDashboard = () => {
   const [studentsFile, setStudentsFile] = useState(null);
   const [questionsFile, setQuestionsFile] = useState(null);
-  const [examData, setExamData] = useState({ courseId: '', courseName: '', batchName: '', examDate: '' });
+  const [examData, setExamData] = useState({
+    courseId: '',
+    courseName: '',
+    batchName: '',
+    examDate: '',
+    selectedQuestions: [],
+  });
   const [selectedExamId, setSelectedExamId] = useState('');
   const [currentSection, setCurrentSection] = useState('browse');
   const [exams, setExams] = useState([]);
@@ -25,6 +32,7 @@ const TeacherDashboard = () => {
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [isQuestionsView, setIsQuestionsView] = useState(false);
   const [isFetchingQuestions, setIsFetchingQuestions] = useState(false);
+  const [isReportOpen, setisReportOpen] = useState(false)
 
   useEffect(() => {
     axios.get('http://localhost:5001/api/exams/unique-course-ids')
@@ -66,8 +74,6 @@ const TeacherDashboard = () => {
     fetchUser();
   }, [])
 
-  console.log(user);
-
   const handleStudentsUpload = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -108,6 +114,14 @@ const TeacherDashboard = () => {
       await axios.post('http://localhost:5001/api/exams/schedule', examData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
+      setExamData({
+        courseId: '',
+        courseName: '',
+        batchName: '',
+        examDate: '',
+        selectedQuestions: [],
+      })
+      setQuestions([])
       alert('Exam scheduled successfully');
     } catch (err) {
       console.error('Failed to schedule exam:', err);
@@ -115,7 +129,8 @@ const TeacherDashboard = () => {
   };
 
   const handleViewReport = () => {
-    navigate('/report', { state: { examId: selectedExamId } });
+    // navigate('/report', { state: { examId: selectedExamId } });
+    setisReportOpen(true)
   };
 
   const handleChange = (e) => {
@@ -129,29 +144,29 @@ const TeacherDashboard = () => {
   );
 
   const handleFetchQuestions = async (courseId) => {
-    if (!courseId) return;
-
     setIsFetchingQuestions(true);
     try {
       const res = await axios.get(`http://localhost:5001/api/questions/course/${courseId}`);
       setQuestions(res.data);
-      setSelectedQuestions(res.data);
+      setExamData((prevData) => ({
+        ...prevData,
+        selectedQuestions: res.data.map((q) => q._id), // select all questions by default
+      }));
     } catch (error) {
       console.error('Error fetching questions:', error);
     } finally {
       setIsFetchingQuestions(false);
-      console.log("hey");
     }
   };
 
-  const toggleSelectQuestion = (question) => {
-    if (selectedQuestions.includes(question)) {
-      setSelectedQuestions(selectedQuestions.filter(q => q !== question));
-    } else {
-      setSelectedQuestions([...selectedQuestions, question]);
-    }
+  const handleQuestionSelect = (questionId) => {
+    setExamData((prevData) => {
+      const selectedQuestions = prevData.selectedQuestions.includes(questionId)
+        ? prevData.selectedQuestions.filter((id) => id !== questionId)
+        : [...prevData.selectedQuestions, questionId];
+      return { ...prevData, selectedQuestions };
+    });
   };
-  console.log(selectedQuestions);
 
   const renderSection = () => {
     switch (currentSection) {
@@ -179,16 +194,20 @@ const TeacherDashboard = () => {
 
             {currentUploadSection === 'students' && (
               <>
-                <form onSubmit={handleStudentsUpload} className="bg-white shadow-md rounded-lg p-6 mb-6 w-full max-w-6xl">
-                  <button onClick={() => setCurrentUploadSection('')} className="mb-4 text-blue-500 flex items-center">
-                    <FaArrowLeft className="mr-2" /> Back
+                <form onSubmit={handleStudentsUpload} className="bg-white shadow-md rounded-lg border border-gray-200 p-6 mb-6 w-full max-w-xl">
+                  <button
+                    onClick={() => { setCurrentUploadSection(''); setStudentsFile(null); }}
+                    className="mb-4 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-gray-900 transition duration-300 ease-in-out flex items-center px-4 py-2 rounded-lg border border-gray-300"
+                  >
+                    <FaArrowLeft className="mr-2" />
+                    Back
                   </button>
                   <div className="mb-4 w-full">
                     <label className="block text-gray-700 font-bold mb-2">Upload Students CSV:</label>
                     <div className="flex items-center w-full">
                       <label
                         htmlFor="studentsFile"
-                        className="flex items-center justify-center border border-dashed rounded py-2 px-3 text-gray-700 cursor-pointer hover:bg-gray-100 transition duration-300 w-1/2 h-32 text-xl"
+                        className="flex items-center justify-center border border-dashed rounded py-2 px-3 text-gray-700 cursor-pointer hover:bg-gray-100 transition duration-300 w-full h-32 text-xl"
                       >
                         <FaFileUpload className="mr-2 text-blue-500 text-2xl" />
                         Choose File
@@ -201,7 +220,7 @@ const TeacherDashboard = () => {
                       />
                     </div>
                     {studentsFile && (
-                      <div className="mt-4 flex items-center justify-between bg-gray-100 p-2 rounded shadow-inner">
+                      <div className="mt-4 flex items-center justify-between bg-gray-100 p-2 rounded shadow-inner border border-gray-200">
                         <div className="flex items-center">
                           <FaCheckCircle className="mr-2 text-green-500" />
                           <span className="text-gray-700">{studentsFile.name}</span>
@@ -250,16 +269,21 @@ const TeacherDashboard = () => {
 
             {currentUploadSection === 'questions' && (
               <>
-                <form onSubmit={handleQuestionsUpload} className="bg-white shadow-md rounded-lg p-6 mb-6 w-full max-w-6xl">
-                  <button onClick={() => setCurrentUploadSection('')} className="mb-4 text-blue-500 flex items-center">
-                    <FaArrowLeft className="mr-2" /> Back
+                <form onSubmit={handleQuestionsUpload} className="bg-white shadow-md rounded-lg p-6 mb-6 w-full max-w-xl border border-gray-200">
+                  <button
+                    onClick={() => { setCurrentUploadSection(''); setQuestionsFile(null); }}
+                    className="mb-4 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-gray-900 transition duration-300 ease-in-out flex items-center px-4 py-2 rounded-lg border border-gray-300"
+                  >
+                    <FaArrowLeft className="mr-2" />
+                    Back
                   </button>
+
                   <div className="mb-4 w-full">
                     <label className="block text-gray-700 font-bold mb-2">Upload Questions CSV:</label>
                     <div className="flex items-center w-full">
                       <label
                         htmlFor="questionsFile"
-                        className="flex items-center justify-center border border-dashed rounded py-2 px-3 text-gray-700 cursor-pointer hover:bg-gray-100 transition duration-300 w-1/2 h-32 text-xl"
+                        className="flex items-center justify-center border border-dashed rounded py-2 px-3 text-gray-700 cursor-pointer hover:bg-gray-100 transition duration-300 w-full h-32 text-xl"
                       >
                         <FaFileUpload className="mr-2 text-blue-500 text-2xl" />
                         Choose File
@@ -272,7 +296,7 @@ const TeacherDashboard = () => {
                       />
                     </div>
                     {questionsFile && (
-                      <div className="mt-4 flex items-center justify-between bg-gray-100 p-2 rounded shadow-inner">
+                      <div className="mt-4 flex items-center justify-between bg-gray-100 p-2 rounded shadow-inner border border-gray-200">
                         <div className="flex items-center">
                           <FaCheckCircle className="mr-2 text-green-500" />
                           <span className="text-gray-700">{questionsFile.name}</span>
@@ -358,7 +382,7 @@ const TeacherDashboard = () => {
                   {isFetchingQuestions && <FaSpinner className="animate-spin text-blue-500 mt-2" />}
                   {!isFetchingQuestions && questions?.length > 0 && (
                     <div className="mt-2 text-green-500 flex items-center">
-                      <FaCheck className="mr-1" /> {selectedQuestions?.length} questions selected.
+                      <FaCheck className="mr-1" /> {examData?.selectedQuestions?.length} questions selected.
                       <button
                         onClick={() => setIsQuestionsView(true)}
                         className="ml-4 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition duration-300"
@@ -443,8 +467,8 @@ const TeacherDashboard = () => {
                           <td className="py-2 text-center border-r border-gray-200">
                             <input
                               type="checkbox"
-                              checked={selectedQuestions.includes(question)}
-                              onChange={() => toggleSelectQuestion(question)}
+                              checked={examData?.selectedQuestions?.includes(question._id)}
+                              onChange={() => handleQuestionSelect(question._id)}
                             />
                           </td>
                         </tr>
@@ -452,7 +476,7 @@ const TeacherDashboard = () => {
                     </tbody>
                   </table>
                   <div className="mt-4 text-gray-700">
-                    {selectedQuestions.length} questions selected.
+                    {examData?.selectedQuestions?.length} questions selected.
                   </div>
                 </div>
               </div>
@@ -463,7 +487,7 @@ const TeacherDashboard = () => {
       case 'viewReport':
         return (
           <div className="bg-white shadow-md rounded-lg p-6 flex-1  w-full">
-            {renderBackButton()}
+            {/* {renderBackButton()} */}
             <div className="mb-4 max-w-lg">
               <label className="block text-gray-700 font-bold mb-2">Select Exam for Report:</label>
               <div className='flex space-x-2'>
@@ -499,9 +523,10 @@ const TeacherDashboard = () => {
                 <button onClick={handleViewReport} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300 text-nowrap">View Report</button>
               </div>
             </div>
-
+            {isReportOpen && <Report id={selectedExamId} />}
           </div>
         );
+
       case 'browse':
         return (
           <div className='flex-1'>
@@ -512,6 +537,7 @@ const TeacherDashboard = () => {
         return null;
     }
   };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
@@ -520,10 +546,16 @@ const TeacherDashboard = () => {
   return (
     <div className="h-screen bg-gray-100 flex">
       <aside className="w-1/4 bg-white shadow-md h-full">
-        <button onClick={() => navigate('/')} className="p-4 text-blue-500 flex items-center">
-          <FaArrowLeft className="mr-2" /> Back to Login
+      <div className='text-gray-800 font-semibold border border-gray-200 m-2 p-2 rounded-lg flex flex-col '>
+        <button
+          onClick={handleLogout}
+          className="p-2 mt-2 ml-2 w-24 bg-red-500 text-white text-sm flex items-center rounded-lg shadow-md hover:bg-red-600 transition duration-300 ease-in-out"
+        >
+          <FaSignOutAlt className="mr-2" />
+          Logout
         </button>
-        <div className='text-gray-800 font-semibold border border-gray-200 m-2 p-2 rounded-lg flex flex-col '>
+
+ 
           <FaUserCircle className="text-6xl text-gray-500 mb-3 items-center w-full" />
           <div className='flex items-center justify-around'>
 
@@ -557,7 +589,15 @@ const TeacherDashboard = () => {
             <span className="text-gray-700 font-semibold">Uploads</span>
           </button>
           <button
-            onClick={() => setCurrentSection('scheduleExam')}
+            onClick={() => {
+              setCurrentSection('scheduleExam'); setExamData({
+                courseId: '',
+                courseName: '',
+                batchName: '',
+                examDate: '',
+                selectedQuestions: [],
+              })
+            }}
             className={`w-full flex items-center p-4 ${currentSection === 'scheduleExam' ? 'bg-gray-200' : 'hover:bg-gray-100'} transition duration-300`}
           >
             <FaCalendarAlt className="text-blue-500 text-xl mr-2" />
@@ -575,7 +615,7 @@ const TeacherDashboard = () => {
       </aside>
       <main className="flex flex-col flex-1 p-4">
         <div className='bg-white shadow-md rounded-lg p-6 mb-3 w-full max-w-6xl'>
-        <h2 className="text-3xl mx-2 font-bold text-gray-700">Dashboard</h2>
+          <h2 className="text-3xl mx-2 font-bold text-gray-700">Dashboard</h2>
         </div>
         {renderSection()}
       </main>

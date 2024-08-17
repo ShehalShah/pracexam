@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaChevronDown, FaQuestionCircle, FaFileAlt, FaLayerGroup, FaEdit } from 'react-icons/fa';
+import { FaChevronDown, FaArrowLeft, FaQuestionCircle, FaFileAlt, FaLayerGroup, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import EditQuestionModal from './EditQuestionModal';
 
@@ -50,6 +50,14 @@ const BrowseSection = ({ courseIds, batchNames }) => {
             console.error('Error fetching students:', error);
         }
     };
+    const renderBackButton = () => (
+        <button
+            onClick={()=>setCurrentBrowseSection("")}
+            className="mb-4 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-gray-900 transition duration-300 ease-in-out flex text-sm items-center px-5 py-2 rounded-lg border border-gray-300"
+        >
+            <FaArrowLeft className="" />
+        </button>
+    );
 
     return (
         <div className="bg-white shadow-md rounded-lg p-6 mb-6 w-full max-w-6xl h-full ">
@@ -81,39 +89,40 @@ const BrowseSection = ({ courseIds, batchNames }) => {
             )}
 
             {currentBrowseSection === 'questions' && (
-                <>
-                <div className='flex space-x-2 pt-6'>
-                    <div className="relative mb-6 w-96">
-                        <div
-                            onClick={() => setIsSubjectDropdownOpen(!isSubjectDropdownOpen)}
-                            className="cursor-pointer border rounded py-2 px-3 text-gray-700 w-full flex items-center justify-between"
-                        >
-                            <span>{selectedSubject ? selectedSubject : "Select Subject"}</span>
-                            <FaChevronDown className={`ml-2 ${isSubjectDropdownOpen ? 'transform rotate-180' : ''}`} />
-                        </div>
-                        {isSubjectDropdownOpen && (
-                            <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg">
-                                {courseIds.map((courseId) => (
-                                    <div
-                                        key={courseId}
-                                        onClick={() => {
-                                            setSelectedSubject(courseId);
-                                            setIsSubjectDropdownOpen(false);
-                                        }}
-                                        className={`cursor-pointer py-2 px-4 hover:bg-gray-200 ${selectedSubject === courseId ? 'bg-gray-200' : ''}`}
-                                    >
-                                        {courseId}
-                                    </div>
-                                ))}
+                <div className='pt-2'>
+                    {renderBackButton()}
+                    <div className='flex space-x-2'>
+                        <div className="relative mb-6 w-96">
+                            <div
+                                onClick={() => setIsSubjectDropdownOpen(!isSubjectDropdownOpen)}
+                                className="cursor-pointer border rounded py-2 px-3 text-gray-700 w-full flex items-center justify-between"
+                            >
+                                <span>{selectedSubject ? selectedSubject : "Select Subject"}</span>
+                                <FaChevronDown className={`ml-2 ${isSubjectDropdownOpen ? 'transform rotate-180' : ''}`} />
                             </div>
-                        )}
-                    </div>
-                    <button
-                        onClick={handleFetchQuestions}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 mb-6"
-                    >
-                        Submit
-                    </button>
+                            {isSubjectDropdownOpen && (
+                                <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg">
+                                    {courseIds.map((courseId) => (
+                                        <div
+                                            key={courseId}
+                                            onClick={() => {
+                                                setSelectedSubject(courseId);
+                                                setIsSubjectDropdownOpen(false);
+                                            }}
+                                            className={`cursor-pointer py-2 px-4 hover:bg-gray-200 ${selectedSubject === courseId ? 'bg-gray-200' : ''}`}
+                                        >
+                                            {courseId}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            onClick={handleFetchQuestions}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 mb-6"
+                        >
+                            Submit
+                        </button>
                     </div>
                     {questions.length > 0 && (
                         <div className="bg-white border border-gray-200 shadow-md rounded-lg p-6 mb-6 w-full max-w-6xl">
@@ -157,44 +166,45 @@ const BrowseSection = ({ courseIds, batchNames }) => {
                         </div>
                     )}
 
-                </>
+                </div>
             )}
 
 
             {currentBrowseSection === 'batches' && (
-                <>
-                <div className='flex space-x-2 pt-6'>
-                    <div className="relative mb-6 w-96">
-                        <div
-                            onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}
-                            className="cursor-pointer border rounded py-2 px-3 text-gray-700 w-full flex items-center justify-between"
-                        >
-                            <span>{selectedBatch ? selectedBatch : "Select Batch"}</span>
-                            <FaChevronDown className={`ml-2 ${isBatchDropdownOpen ? 'transform rotate-180' : ''}`} />
-                        </div>
-                        {isBatchDropdownOpen && (
-                            <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg">
-                                {batchNames.map((batchName) => (
-                                    <div
-                                        key={batchName}
-                                        onClick={() => {
-                                            setSelectedBatch(batchName);
-                                            setIsBatchDropdownOpen(false);
-                                        }}
-                                        className={`cursor-pointer py-2 px-4 hover:bg-gray-200 ${selectedBatch === batchName ? 'bg-gray-200' : ''}`}
-                                    >
-                                        {batchName}
-                                    </div>
-                                ))}
+                <div className='pt-2'>
+                    {renderBackButton()}
+                    <div className='flex space-x-2'>
+                        <div className="relative mb-6 w-96">
+                            <div
+                                onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}
+                                className="cursor-pointer border rounded py-2 px-3 text-gray-700 w-full flex items-center justify-between"
+                            >
+                                <span>{selectedBatch ? selectedBatch : "Select Batch"}</span>
+                                <FaChevronDown className={`ml-2 ${isBatchDropdownOpen ? 'transform rotate-180' : ''}`} />
                             </div>
-                        )}
-                    </div>
-                    <button
-                        onClick={handleFetchStudents}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 mb-6"
-                    >
-                        Submit
-                    </button>
+                            {isBatchDropdownOpen && (
+                                <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg">
+                                    {batchNames.map((batchName) => (
+                                        <div
+                                            key={batchName}
+                                            onClick={() => {
+                                                setSelectedBatch(batchName);
+                                                setIsBatchDropdownOpen(false);
+                                            }}
+                                            className={`cursor-pointer py-2 px-4 hover:bg-gray-200 ${selectedBatch === batchName ? 'bg-gray-200' : ''}`}
+                                        >
+                                            {batchName}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            onClick={handleFetchStudents}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 mb-6"
+                        >
+                            Submit
+                        </button>
                     </div>
                     {students.length > 0 && (
                         <div className="bg-white border border-gray-200 shadow-md rounded-lg p-6 mb-6 w-full max-w-6xl">
@@ -221,7 +231,7 @@ const BrowseSection = ({ courseIds, batchNames }) => {
                             </table>
                         </div>
                     )}
-                </>
+                </div>
             )}
 
 
