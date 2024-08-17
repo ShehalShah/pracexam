@@ -65,9 +65,9 @@ const StudentDashboard = () => {
     switch (currentSection) {
       case 'scheduled':
         return (
-          <div className='bg-white shadow-md rounded-lg p-6 w-full flex-1 flex flex-col'>
+          <div className='bg-white shadow-md rounded-lg p-6 w-full flex-1 flex flex-col h-64'>
             <h2 className="text-3xl font-bold text-gray-700 mb-8">Scheduled Exams</h2>
-            <ul>
+            <ul className='overflow-scroll'>
               {scheduledExams.map((exam) => (
                 <li key={exam._id} className="bg-white shadow-md rounded-lg mb-4 p-6 flex justify-between items-center border border-gray-200">
                   <div className="flex items-center">
@@ -91,9 +91,9 @@ const StudentDashboard = () => {
         );
       case 'completed':
         return (
-          <div className='bg-white shadow-md rounded-lg p-6 w-full flex-1 flex flex-col'>
-            <h2 className="text-3xl font-bold text-gray-700 mb-8 flex-1">Completed Exams</h2>
-            <ul className=''>
+          <div className='bg-white shadow-md rounded-lg p-6 w-full flex-1 flex flex-col h-64'>
+            <h2 className="text-3xl font-bold text-gray-700 mb-8 ">Completed Exams</h2>
+            <ul className='overflow-scroll'>
               {completedExams.map((exam) => (
                 <li key={exam._id} className="bg-white shadow-md rounded-lg mb-4 p-6 flex justify-between items-center border border-gray-200">
                   <div className="flex items-center">
@@ -147,7 +147,7 @@ const StudentDashboard = () => {
           </button>
         </nav>
       </aside>
-      <main className="flex flex-col flex-1 p-4">
+      <main className="flex flex-col flex-1 p-4 h-full">
         <div className='bg-white shadow-md rounded-lg p-6 mb-3 w-full max-w-6xl'>
           <h2 className="text-3xl mx-2 font-bold text-gray-700">Dashboard</h2>
         </div>
