@@ -138,3 +138,13 @@ exports.submitExam = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
+
+exports.getAllExams = async (req, res) => {
+  try {
+    const exams = await Exam.find(); // Fetches all exams from the database
+    res.json(exams); // Sends the exams as JSON response
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};

@@ -44,4 +44,6 @@ router.post('/change-question/:examId', authMiddleware(['student']), examControl
 // Submit an exam
 router.post('/submit/:examId', authMiddleware(['student']), examController.submitExam);
 
+router.get('/exams', examController.getAllExams);
+
 module.exports = router;

@@ -15,6 +15,9 @@ const BrowseSection = ({ courseIds, batchNames }) => {
     const [students, setStudents] = useState([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedQuestion, setSelectedQuestion] = useState(null);
+    const [exams, setExams] = useState([]);
+    const [loading, setLoading] = useState(true); 
+    const [error, setError] = useState(null);
 
     const openEditModal = (question) => {
         setSelectedQuestion(question);
@@ -50,6 +53,24 @@ const BrowseSection = ({ courseIds, batchNames }) => {
             console.error('Error fetching students:', error);
         }
     };
+
+    useEffect(() => {
+        const fetchExams = async () => {
+          try {
+            const response = await axios.get('http://localhost:5001/api/exams/exams');
+            setExams(response.data); // Store fetched exams in state
+          } catch (err) {
+            console.error('Error fetching exams:', err);
+            setError('Error fetching exams'); // Set error if request fails
+          } finally {
+            setLoading(false); // Set loading to false once fetching is done
+          }
+        };
+    
+        fetchExams(); // Call the fetch function
+      }, []);
+
+    
     const renderBackButton = () => (
         <button
             onClick={()=>setCurrentBrowseSection("")}
@@ -236,9 +257,83 @@ const BrowseSection = ({ courseIds, batchNames }) => {
 
 
             {currentBrowseSection === 'exams' && (
-                <>
-                    {/* Add code for browsing exams here */}
-                </>
+               <div className="pt-2">
+               {renderBackButton()}
+               <h3 className="text-lg font-bold mb-4">Exams List</h3>
+               {/* <div className='flex space-x-2 mb-6'>
+                   <div className="relative mb-6 w-96">
+                       <div
+                           onClick={() => setIsBatchDropdownOpen(!isBatchDropdownOpen)}
+                           className="cursor-pointer border rounded py-2 px-3 text-gray-700 w-full flex items-center justify-between"
+                       >
+                           <span>{selectedBatch ? selectedBatch : "Select Batch"}</span>
+                           <FaChevronDown className={`ml-2 ${isBatchDropdownOpen ? 'transform rotate-180' : ''}`} />
+                       </div>
+                       {isBatchDropdownOpen && (
+                           <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg">
+                               {batchNames.map((batchName) => (
+                                   <div
+                                       key={batchName}
+                                       onClick={() => {
+                                           setSelectedBatch(batchName);
+                                           setIsBatchDropdownOpen(false);
+                                       }}
+                                       className={`cursor-pointer py-2 px-4 hover:bg-gray-200 ${selectedBatch === batchName ? 'bg-gray-200' : ''}`}
+                                   >
+                                       {batchName}
+                                   </div>
+                               ))}
+                           </div>
+                       )}
+                   </div>
+                   <button
+                       onClick={handleFetchExams}
+                       className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 mb-6"
+                   >
+                       Submit
+                   </button>
+               </div> */}
+               
+               <div className="overflow-x-auto ">
+                   <table className="min-w-full bg-white border-l">
+                       <thead>
+                           <tr className="border-t bg-gray-100">
+                               <th className="py-2 border-r border-b border-gray-200">Course Name</th>
+                               <th className="py-2 border-r border-b border-gray-200">Course ID</th>
+                               <th className="py-2 border-r border-b border-gray-200">Batch Name</th>
+                               <th className="py-2 border-r border-b border-gray-200">Exam Date</th>
+                               <th className="py-2 border-r border-b border-gray-200">Total Students</th>
+                               <th className="py-2 border-r border-b border-gray-200">Completed</th>
+                               <th className="py-2 border-r border-b border-gray-200">Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           {exams.length === 0 ? (
+                               <tr>
+                                   <td colSpan="7" className="py-4 text-center text-gray-500">No exams available</td>
+                               </tr>
+                           ) : (
+                               exams.map((exam) => (
+                                   <tr key={exam._id} className="border-b border-gray-200 hover:bg-gray-100">
+                                       <td className="py-2 text-center border-r border-gray-200">{exam.courseName}</td>
+                                       <td className="py-2 text-center border-r border-gray-200">{exam.courseId}</td>
+                                       <td className="py-2 text-center border-r border-gray-200">{exam.batchName}</td>
+                                       <td className="py-2 text-center border-r border-gray-200">{new Date(exam.examDate).toLocaleDateString()}</td>
+                                       <td className="ppy-2 text-center border-r border-gray-200">{exam.studentStatus.length}</td>
+                                       <td className="py-2 text-center border-r border-gray-200">
+                                           {exam.studentStatus.filter(s => s.completed).length}/{exam.studentStatus.length}
+                                       </td>
+                                       <td className="py-2 text-center border-r border-gray-200">
+                                           <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-300">View</button>
+                                       </td>
+                                   </tr>
+                               ))
+                           )}
+                       </tbody>
+                   </table>
+               </div>
+           </div>
+           
             )}
         </div>
     );

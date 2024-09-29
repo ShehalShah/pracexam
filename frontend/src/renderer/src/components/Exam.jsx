@@ -9,6 +9,9 @@ const Exam = () => {
   const [question, setQuestion] = useState('');
   const [timer, setTimer] = useState(3600); // 1 hour in seconds
   const [image, setImage] = useState(null); // State for image
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [actionType, setActionType] = useState(null); // 'submit' or 'change'
   const navigate = useNavigate();
   let interval;
 
@@ -20,15 +23,7 @@ const Exam = () => {
         });
         setQuestion(res.data.question.questionText);
         if (res.data.question.image) {
-          // setImage(res.data.question.image);
-
-          // // Convert the buffer to a base64 string
-          // const base64String = res.data.question.image.data.toString('base64');
-
-          // // Create a data URL for the image
-          // const imageUrl = `data:image/jpeg;base64,${base64String}`;
-          setImage(res.data.question.image)
-
+          setImage(res.data.question.image);
         }
       } catch (err) {
         console.error('Failed to fetch question:', err);
@@ -37,8 +32,17 @@ const Exam = () => {
 
     fetchQuestion();
 
+    clearInterval(interval);
+
     interval = setInterval(() => {
-      setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0));
+      setTimer((prevTimer) => {
+        if (prevTimer < 0) {
+          alert('Time is up! Exam submitted automatically.');
+          handleSubmit(); // Auto-submit when timer reaches 0
+          return 0;
+        }
+        return prevTimer - 1;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
@@ -54,11 +58,12 @@ const Exam = () => {
       navigate('/student-dashboard'); // Redirect to StudentDashboard
     } catch (err) {
       console.error('Failed to submit exam:', err);
+      setModalMessage('Failed to submit the exam.');
     }
+    setShowModal(false);
   };
 
   const handleChangeQuestion = async () => {
-    console.log("hi");
     try {
       const res = await axios.post(`http://localhost:5001/api/exams/change-question/${examId}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -69,9 +74,18 @@ const Exam = () => {
       } else {
         setImage(null);
       }
+      setModalMessage('Question changed successfully.');
     } catch (err) {
       console.error('Failed to change question:', err.message);
+      setModalMessage('Failed to change the question.');
     }
+    setShowModal(false);
+  };
+
+  const confirmAction = (type) => {
+    setActionType(type);
+    setModalMessage(`Are you sure you want to ${type === 'submit' ? 'submit' : 'change the question'}?`);
+    setShowModal(true);
   };
 
   return (
@@ -90,18 +104,41 @@ const Exam = () => {
       </div>
       <div className="flex space-x-4">
         <button
-          onClick={handleSubmit}
+          onClick={() => confirmAction('submit')}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300 flex items-center"
         >
           <FaCheckCircle className="mr-2" /> Submit
         </button>
         <button
-          onClick={handleChangeQuestion}
+          onClick={() => confirmAction('change')}
           className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition duration-300 flex items-center"
         >
           <FaSyncAlt className="mr-2" /> Change Question
         </button>
       </div>
+
+      {/* Confirmation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 w-80">
+            <h3 className="text-lg font-bold text-center mb-4">{modalMessage}</h3>
+            <div className="flex justify-between">
+              <button
+                onClick={actionType === 'submit' ? handleSubmit : handleChangeQuestion}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

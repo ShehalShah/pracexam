@@ -26,7 +26,9 @@ const StudentDashboard = () => {
         const res = await axios.get('http://localhost:5001/api/exams/student', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setExams(res.data);
+        console.log(res.data)
+        const sortedExams = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setExams(sortedExams);
       } catch (err) {
         console.error('Failed to fetch exams:', err);
       }
